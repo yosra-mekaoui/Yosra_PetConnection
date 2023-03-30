@@ -4,6 +4,8 @@ import { Suspense } from 'react';
 import {  Route, Routes } from 'react-router-dom';
 
 import { useScript } from 'usehooks-ts'
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 import Loading from "./Components/Pages/Loading";
 import TwoFa from "./Components/User/TwoFa";
 //import TwoFactorVerification from "./Components/User/TwoFactorVerification";
@@ -75,7 +77,7 @@ useScript("./assets/js/masonry.pkgd.min.js");
       </div>
       ):(
       <Suspense fallback={<div></div>}>
-        
+        <ToastContainer/>
         <Header />
         <Routes>
           <Route path="*" element={<Home />}></Route>

@@ -2,10 +2,20 @@ import { useNavigate } from "react-router-dom";
 import { NavLink, Routes, Route } from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {useEffect} from "react";
+import { createBrowserHistory } from 'history';
 import {affichage, selectProduct} from "../../redux/slices/ProductSlice";
+import { addToCart } from "../../redux/slices/cartSlice";
 function Shop() {
   const dispatch = useDispatch();
   const products = useSelector(selectProduct);
+  const history = createBrowserHistory();
+
+
+  const handleAddToCart = (p) => {
+  dispatch(addToCart(p));
+  history.push('/cart');
+  window.location.reload();
+  };
 
   useEffect(() => {
     dispatch(affichage())
@@ -106,44 +116,47 @@ function Shop() {
             </div>
             <div className="row g-4 justify-content-center">
 
-              {products.map((p,i) => (
-              <div className="col-lg-4 col-md-4 col-sm-6">
-                <div className="collection-card">
-                  <div className="offer-card">
-                    <span>Offer</span>
-                  </div>
-                  <div className="collection-img">
-                    <img className="img-gluid" src={(p!==null)?p.img:''} alt="" />
-                    <div className="view-dt-btn">
-                      <div className="plus-icon">
-                        <i className="bi bi-plus" />
+              {products.map((p,i) => {
+                return (
+                  <div className="col-lg-4 col-md-4 col-sm-6">
+                    <div className="collection-card">
+                      <div className="offer-card">
+                        <span>Offer</span>
                       </div>
+                      <div className="collection-img">
+                        <img className="img-gluid" src={(p !== null) ? p.img : ''} alt="" />
+                        <div className="view-dt-btn">
+                          <div className="plus-icon">
+                            <i className="bi bi-plus" />
+                          </div>
 
-                      <NavLink to="/details">View Details</NavLink>
+                          <NavLink to="/details">View Details</NavLink>
+                        </div>
+                        <ul className="cart-icon-list">
+                          <button onClick={() => handleAddToCart(p)}>Add </button>
+                          <li><NavLink to="/cart"><img src="assets/images/icon/Icon-cart3.svg" alt="" /></NavLink></li>
+                          <li><a href="#"><img src="assets/images/icon/Icon-favorites3.svg" alt="" /></a></li>
+                        </ul>
+                      </div>
+                      <div className="collection-content text-center">
+                        <h4><NavLink to="/details">{(p !== null) ? p.name : ''}</NavLink></h4>
+                        <div className="price">
+                          <h6>{(p !== null) ? p.price : ''} <del>$50.00</del></h6>
+                        </div>
+                        <div className="review">
+                          <ul>
+                            <li><i className="bi bi-star-fill" /></li>
+                            <li><i className="bi bi-star-fill" /></li>
+                            <li><i className="bi bi-star-fill" /></li>
+                            <li><i className="bi bi-star-fill" /></li>
+                            <li><i className="bi bi-star-fill" /></li>
+                          </ul>
+                        </div>
+                      </div>
                     </div>
-                    <ul className="cart-icon-list">
-                      <li><NavLink to="/cart"><img src="assets/images/icon/Icon-cart3.svg" alt=""/></NavLink></li>
-                      <li><a href="#"><img src="assets/images/icon/Icon-favorites3.svg" alt="" /></a></li>
-                    </ul>
                   </div>
-                  <div className="collection-content text-center">
-                    <h4><NavLink to="/details">{(p!==null)?p.name:''}</NavLink></h4>
-                    <div className="price">
-                      <h6>{(p!==null)?p.price:''}</h6>
-                    </div>
-                    <div className="review">
-                      <ul>
-                        <li><i className="bi bi-star-fill" /></li>
-                        <li><i className="bi bi-star-fill" /></li>
-                        <li><i className="bi bi-star-fill" /></li>
-                        <li><i className="bi bi-star-fill" /></li>
-                        <li><i className="bi bi-star-fill" /></li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              ))}
+                );
+              })}
 
             </div>
             <div className="row pt-70">
