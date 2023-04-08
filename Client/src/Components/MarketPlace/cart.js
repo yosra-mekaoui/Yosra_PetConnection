@@ -1,104 +1,348 @@
 import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { NavLink, Routes, Route } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { createBrowserHistory } from 'history';
+import {toast} from "react-toastify";
 
-const Cart = () => {
-  const cart = useSelector((state) => state.cart);
+function Cart() {
+  const userFromLocalStorageString = localStorage.getItem('user');
+  const user = userFromLocalStorageString ? JSON.parse(userFromLocalStorageString) : null;
+  const cart = useSelector(state => state.cart);
+  const [product, setProduct] = useState("");
+  const [products, setProducts] = useState([]);
+  const [total,setTotal]=useState(0);
+
+  const { id } = useParams();
+
+  const history = createBrowserHistory();
+  async function  Calculatetotal(data){
+    let total=0;
+    data.forEach(element => {
+        total=total+(element.price*element.quantity);
+        console.log(total)
+    });
+    setTotal(total);
+
+  }
+  function moveToCheckout(){
+    console.log(user);
+    localStorage.setItem(
+      "facture", total);
+
+    history.push("/checkout");
+    window.location.reload();
+
+  }
+   useEffect(() => {
+   if(user!=null){
+    axios.post('http://localhost:3000/getCartProductsByUser', { user })
+      .then(response => {
+        console.log(user)
+        Calculatetotal(response.data)
+        setProducts(response.data);
+        console.log(products);
+        
+      })
+      .catch(error => {
+        console.error(error);
+      });
+    }else{
+      history.push("/shop");
+      window.location.reload();
+      }
+  }, []);
+  //delete product from cart 
+  const deleteProductFromCart = async (productId) => {
+    try {
+      const confirmed = window.confirm("Are you sure your want to delete product from cart?");
+      
+      if (confirmed) {
+       
+        const response = await axios.post(`http://localhost:3000/deletecart2/${productId}`, { user });
+        console.log(response.data);
+        
+        history.push('/cart');
+        window.location.reload();
+        
+      }  
+     
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const addToCart=async (productId)=>{
+ 
+     
+      axios.post(`http://localhost:3000/addproducttocart/${productId}`, { user }).then(
+       (response)=>{
+         axios.post('http://localhost:3000/getCartProductsByUser', { user })
+        .then(newCart => {
+          Calculatetotal(newCart.data)
+
+     console.log(user)
+     setProducts(newCart.data);
+     
+   })
+       }
+      ).catch((err)=>{
+        console.log(err);
+
+      });
+  /*   history.push('/cart');
+     window.location.reload();*/
+  
+  
+ 
+  }
+  //subtractFromCart
+  const subtractFromCart = async (productId) => {
+    //http://localhost:3000/subtractFromCart/${productId}
+   
+    axios.post(`http://localhost:3000/subtractFromCart/${productId}`, { user }).then(
+      (response)=>{
+        axios.post('http://localhost:3000/getCartProductsByUser', { user })
+       .then(newCart => {
+        Calculatetotal(newCart.data)
+
+    console.log(user)
+    setProducts(newCart.data);
+    
+  })
+      }
+     ).catch((err)=>{
+       console.log(err);
+
+     });
+  };
+//   useEffect(() => {
+//     const addproducttocart = async () => {
+//           try {
+//             const response = await fetch(`http://localhost:3000/product/addproducttocart/${id}`, {
+//                     method: 'POST',
+//                     body: JSON.stringify({ user: user }),
+//                     headers: {
+//                       'Content-Type': 'application/json'
+//                     }});
+//                     const data = await response.json();
+//                         console.log(data.message); // Print response message to console
+//           } catch (error) {
+//                   console.error(error);  
+
+//                 }
+
+//   }
+//   addproducttocart();
+// })
+// const handleSubmit = async (e) => {
+//   e.preventDefault();
+
+//   try {
+   
+    
+
+//     axios.post(`http://localhost:3000/addproducttocart/${id}`, { user })
+//     .then(response => {
+//       console.log(response.data);
+      
+//     })
+   
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
+
+
+// useEffect(() => {
+//   const addToCart = async () => {
+//     try {
+//       const response = await axios.post(`http://localhost:3000/addproducttocart/${id}`, { user });
+//       console.log(response.data);
+//     } catch (error) {
+//       console.error(error);
+//     }
+//   };
+
+//   addToCart();
+// }, [response.data]);
   
   return (
-    <div className="cart-container">
-      <h2>Shopping Cart</h2>
-      {cart.cartItems.length === 0 ? (
-         <div className="cart-empty">
-           <p> Your cart is currently empty </p>
-           <div className="start-shopping">
-          <Link to="/home">
-          <svg 
-          xmlns="http://www.w3.org/2000/svg"
-          width="20" 
-          height="20" 
-          fill="currentColor" 
-          className="bi bi-arrow-left" 
-          viewBox="0 0 16 16"
-          >
-            <path 
-              fillRule="evenodd" 
-              d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
-            />
-          </svg>
-            <span> Start Shopping</span>
-          </Link>
+    <>
+    {user&&
+  <>
+      <div className="inner-page-banner">
+        <div className="breadcrumb-vec-btm">
+          <img
+            className="img-fluid"
+            src="/assets/images/bg/inner-banner-btm-vec.png"
+            alt=""
+          />
         </div>
-      </div>
-    ): (<div>
-          <div className="titles">
-            <h3 classeName="product-title">Product</h3>
-            <h3 classeName="price">Price</h3>
-            <h3 className="Quantity">Quantity</h3>
-            <h3 className="total">Total</h3>
-            </div>
-          <div className="cart-items">
-            {cart.cartItems?.map(cartItem => (
-              <div className="cart-item" key = {cartItem.id}>
-                <div className="cart-product">
-                  <img src={cartItem.image} alt={cartItem.name} />
-                  <div>
-                    <h3>{cartItem.name}</h3>
-                    <p>{cartItem.desc}</p>
-                    <button>Remove</button>
-                  </div>
-                  </div>
-                  <div className="cart-product-price">${cartItem.price}</div>
-                  <div classeName="cart-product-quantity">
-                    <button>-</button>
-                    <div className="count">{cartItem.CartQuantity}</div>
-                    <button>+</button>
-                  </div>
-                  <div className="cart-product-total-price">
-                    ${cartItem.price * cartItem.CartQuantity}
-                  </div>
-                </div>
-              ))}
-           </div>
-            <div className="cart-summary">
-              <button className="clear-cart">Clear Cart</button>
-              <div className="cart-checkout">
-                <div className="subtotal">
-                  <span>Subtotal</span>
-                  <span className="amount">${cart.cartTotalAmount}</span>
-                </div>
-                <p>Taxes and shipping calculated at checkout</p>
-                <button>Check out</button>
-                <div className="cart-empty">
-           <p> Your cart is currently empty </p>
-           <div className="continue-shopping">
-          <Link to="/home">
-          <svg 
-          xmlns="http://www.w3.org/2000/svg"
-          width="20" 
-          height="20" 
-          fill="currentColor" 
-          className="bi bi-arrow-left" 
-          viewBox="0 0 16 16"
-          >
-            <path 
-              fillRule="evenodd" 
-              d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
-            />
-          </svg>
-            <span> Continue Shopping</span>
-          </Link>
-        </div>
-      </div>
+        <div className="container">
+          <div className="row justify-content-center align-items-center text-center">
+            <div className="col-lg-6 align-items-center">
+              <div className="banner-content">
+                <h1>Cart</h1>
+                <nav aria-label="breadcrumb">
+                  <ol className="breadcrumb">
+                    <li className="breadcrumb-item">
+                      <a href="index.html">Home</a>
+                    </li>
+                    <li className="breadcrumb-item active" aria-current="page">
+                      Cart
+                    </li>
+                  </ol>
+                </nav>
               </div>
             </div>
+            <div className="col-lg-6">
+              <div className="banner-img d-lg-block d-none">
+                <div className="banner-img-bg">
+                  <img
+                    className="img-fluid"
+                    src="/assets/images/bg/inner-banner-vec.png"
+                    alt=""
+                  />
+                </div>
+                <img
+                  className="img-fluid"
+                  src="/assets/images/bg/inner-banner-img.png"
+                  alt=""
+                />
+              </div>
+            </div>
+          </div>
         </div>
-    )}
-  </div>
-      
+      </div>
+
+      <div className="cart-section pt-120 pb-120">
+        <div className="container">
+         
+          <div className="row">
+            <div className="col-12">
+              <div className="table-wrapper">
+                <table className="eg-table table cart-table">
+                  <thead>
+                    <tr>
+                      <th>Delete</th>
+                      <th>Image</th>
+                      <th>Food Name</th>
+                      <th>Discount Price</th>
+                      <th>Quantity</th>
+                      <th>Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                   
+                  {products && products.map(pet => (    
+                    <tr key={pet._id}>
+                      <td data-label="Delete">
+                        <div className="delete-icon">
+                          <i className="bi bi-x" onClick={() => deleteProductFromCart(pet._id)}></i>
+                        </div>
+                      </td>
+                      <td data-label="Image">
+                        <img src={pet.img} alt="" />
+                      </td>
+                      <td data-label="Food Name">
+                        <a href="shop-details.html">{pet.name}</a>
+                      </td>
+                      <td data-label="Unite Price">{pet.price}<br></br><del>50.00 TND</del></td>
+                      
+                      <td data-label="Discount Price">
+
+
+                      <button onClick={() => subtractFromCart(pet._id)}>-</button>
+                      {pet.quantity} 
+                      <button onClick={() => addToCart(pet._id)}>+</button>
+
+                      </td>
+                      <td data-label="Quantity">
+                        <div className="quantity d-flex align-items-center">
+                          <div className="quantity-nav nice-number d-flex align-items-center" >
+                          {pet.price * pet.quantity} TND 
+                          </div>
+                        </div>
+                      </td>
+                      
+                    </tr>
+                     ))} 
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div className="row g-4">
+            <div className="col-lg-4">
+              <div className="coupon-area">
+                <div className="cart-coupon-input">
+                  <h5 className="coupon-title">Coupon Code</h5>
+                  <form className="coupon-input d-flex align-items-center">
+                    <input type="text" placeholder="Coupon Code" />
+                    <button type="submit">Apply Code</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-8">
+<table className="table total-table">
+<thead>
+<tr>
+<th>Cart Totals</th>
+<th></th>
+<th>{total}</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shipping</td>
+<td>
+<ul className="cost-list text-start">
+<li>Shipping Fee</li>
+<li>Total ( tax excl.)</li>
+<li>Total ( tax incl.)</li>
+<li>Taxes</li>
+<li>Shipping Enter your address to view shipping options. <br/> <a href="#">Calculate
+shipping</a>
+</li>
+</ul>
+</td>
+<td>
+<ul className="single-cost text-center">
+<li>Fee</li>
+<li>Free
+</li>
+<li>
+</li>
+<li>Free</li>
+<li>Free</li>
+<li>Free</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td>Subtotal</td>
+<td></td>
+<td>{total}</td>
+</tr>
+</tbody>
+</table>
+<ul className="cart-btn-group">
+                <li><a href="/shop" className="primary-btn2 btn-lg">Continue to shopping</a></li>
+                <li><a onClick={moveToCheckout} className="primary-btn3 btn-lg">Proceed to Checkout</a></li>
+            </ul>
+</div>
+          
+          </div>
+        </div>
+      </div>
+      </>
+}
+    </>
   );
-};
+}
 
 export default Cart;

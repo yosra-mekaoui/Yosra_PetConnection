@@ -62,6 +62,11 @@ var User = new schema({
     passwordResetToken: String,
     passwordResetExpires: Date,
     isUserVerified: {type: Boolean, default: false},
+    cart:
+    {
+        type: schema.Types.ObjectId,
+        ref: 'Cart'
+    }
 });
 
 

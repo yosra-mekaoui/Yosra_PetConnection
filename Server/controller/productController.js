@@ -41,8 +41,11 @@ exports.search = async(req,res) => {
 }
 
 exports.findById = async(req,res) => {
+    console.log(req.params.id)
     await Product.findOne({_id:req.params.id}).then(product=>{
+        console.log(product)
         return res.status(200).json(product);
+        
     }).catch(err=>{
         return res.status(500).json(err);
     });

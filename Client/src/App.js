@@ -8,6 +8,8 @@ import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Loading from "./Components/Pages/Loading";
 import TwoFa from "./Components/User/TwoFa";
+import { loadStripe } from "@stripe/stripe-js";
+
 //import TwoFactorVerification from "./Components/User/TwoFactorVerification";
 
 
@@ -26,8 +28,11 @@ const ResetPwd = React.lazy(()=> import ('./Components/User/resetPwd'))
 const Profile = React.lazy(()=> import ('./Components/User/Profile'))
 const Shop = React.lazy(()=> import ('./Components/MarketPlace/shop'))
 const Cart = React.lazy(()=> import ('./Components/MarketPlace/cart'))
+
 const Details = React.lazy(()=> import ('./Components/MarketPlace/details'))
 const Checkout = React.lazy(()=> import ('./Components/MarketPlace/checkout'))
+const Paymenet = React.lazy(()=> import ('./Components/MarketPlace/payment'))
+import { Elements } from "@stripe/react-stripe-js";
 
 
 
@@ -67,7 +72,9 @@ useScript("./assets/js/masonry.pkgd.min.js");
 
     console.log(user)
   },[])
-
+  const promise = loadStripe(
+    "pk_test_51MgaqwHbRAiFliiNEQJAtaIOs0gTi4iYfnmBlL6rT2NmkASR0sgNhnHCeUSEPjWPkhzNszWN43An67WnZouA5Ei800QOl0xTth"
+  );
  
   return (
     <div className="App">
@@ -96,9 +103,14 @@ useScript("./assets/js/masonry.pkgd.min.js");
           {/* <Route path='/resetPwd/:t' element={<ResetPwd />}></Route> */}
           <Route exact path='/resetpassword/:token' element={<ResetPwd />}></Route>
           <Route exact path='/shop' element={<Shop />}></Route>
-          <Route exact path='/cart' element={<Cart />}></Route>
+          <Route exact path='/cart/' element={<Cart />}></Route>
           <Route exact path='/details' element={<Details />}></Route>
           <Route exact path='/checkout' element={<Checkout />}></Route>
+          <Route exact path='/payment' element={
+              <Elements stripe={promise}>
+                <Paymenet />
+              </Elements>
+            }></Route>
 
         </Routes>
 

@@ -1,26 +1,47 @@
 import { useNavigate } from "react-router-dom";
-import { NavLink, Routes, Route } from "react-router-dom";
+import { NavLink,Link, Routes, Route } from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {useEffect} from "react";
 import { createBrowserHistory } from 'history';
 import {affichage, selectProduct} from "../../redux/slices/ProductSlice";
 import { addToCart } from "../../redux/slices/cartSlice";
+import {toast} from "react-toastify";
+
+import axios from "axios";
 function Shop() {
   const dispatch = useDispatch();
   const products = useSelector(selectProduct);
   const history = createBrowserHistory();
-
-
-  const handleAddToCart = (p) => {
-  dispatch(addToCart(p));
-  history.push('/cart');
-  window.location.reload();
-  };
+  const userFromLocalStorageString = localStorage.getItem('user');
+  const user = userFromLocalStorageString ? JSON.parse(userFromLocalStorageString) : null;
+ 
+ 
 
   useEffect(() => {
     dispatch(affichage())
   }, [dispatch]);
+  const handleSubmit = async (id) => {
+    if(user!=null){
+    try {
+      toast.success(" product added to cart", {
+        position: "bottom-left",
+    });
+   
+      const response = await axios.post(`http://localhost:3000/addproducttocart/${id}`, {user});
+      console.log(response.data);
+      
+     
+    
+    
 
+    
+    } catch (error) {
+      console.error(error);
+    }}else{
+      history.push("/Register")
+      window.location.reload();
+    }
+  };
   return (<>
     <div className="inner-page-banner">
       <div className="breadcrumb-vec-btm">
@@ -81,8 +102,13 @@ function Shop() {
                       <span className="checkmark" />
                     </label>
                   </div>
+                
+          
                 </div>
+                
               </div>
+              <li><a href="/cart" className="primary-btn2 btn-lg">My Cart</a></li>
+
             </div>
           </div>
           {/* ---------------------------------------------------------------------------------- */}
@@ -132,9 +158,16 @@ function Shop() {
 
                           <NavLink to="/details">View Details</NavLink>
                         </div>
+
                         <ul className="cart-icon-list">
-                          <button onClick={() => handleAddToCart(p)}>Add </button>
-                          <li><NavLink to="/cart"><img src="assets/images/icon/Icon-cart3.svg" alt="" /></NavLink></li>
+                          
+                          <li>
+                            <a onClick={() => handleSubmit(p._id)}>
+                              <img src="assets/images/icon/Icon-cart3.svg" alt="" />
+                            
+                            </a>
+                            
+                          </li>
                           <li><a href="#"><img src="assets/images/icon/Icon-favorites3.svg" alt="" /></a></li>
                         </ul>
                       </div>

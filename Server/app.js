@@ -6,8 +6,7 @@ const bodyParser = require("body-parser");
 const cors = require('cors');
 const session = require('express-session')
 const path = require("path");
-
-
+const paymentRoutes=require("./routes/Marketplace/payment");
 
 // =========== Database Connection ==============
 mongo.connect("mongodb+srv://yosramekaoui:yosra@cluster0.aalwf4q.mongodb.net/ace?retryWrites=true&w=majority"
@@ -43,6 +42,9 @@ var cartRouter = require('./routes/Marketplace/cart');
 app.use('/', cartRouter);
 var orderRouter = require('./routes/Marketplace/order'); 
 app.use('/', orderRouter);
+var couponRouter = require('./routes/Marketplace/coupon'); 
+app.use('/', couponRouter);
+app.use('/payment',paymentRoutes);
 app.use(express.static('public'));
 
 
@@ -55,5 +57,5 @@ app.use(express.static('public'));
 const server = http.createServer(app); 
 server.listen(3000, () => console.log('server'))
 
-
+  
 //================//
