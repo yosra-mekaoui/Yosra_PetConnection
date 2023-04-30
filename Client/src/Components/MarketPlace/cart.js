@@ -15,7 +15,28 @@ function Cart() {
   const [product, setProduct] = useState("");
   const [products, setProducts] = useState([]);
   const [total,setTotal]=useState(0);
+  const [couponcode,setCouponCode]=useState("");
+  const [couponValue,setcouponValue]=useState(0);
+  const [couponsIsApplied,setCouponsIsApplied]=useState(false);
 
+  async  function  searchForCoupon(){
+    if(couponcode==""){
+      alert("code non valide");
+    }else{
+     let  reponse=await axios.get("http://localhost:3000/coupon/isCodeExiste/"+couponcode);
+      if(reponse.data.isExiste==true){
+        alert("Apply coupon , value : %"+reponse.data.coupon.valeur);
+        setcouponValue(reponse.data.coupon.valeur)
+        setCouponsIsApplied(true);
+
+      }else{
+        alert("code coupon invalid ");
+
+      }
+
+
+    }
+  }
   const { id } = useParams();
 
   const history = createBrowserHistory();
@@ -30,8 +51,13 @@ function Cart() {
   }
   function moveToCheckout(){
     console.log(user);
+    let finaltotal=total;
+
+    if(couponsIsApplied){
+      finaltotal=total-((total*couponValue)/100)
+    }
     localStorage.setItem(
-      "facture", total);
+      "facture", finaltotal);
 
     history.push("/checkout");
     window.location.reload();
@@ -276,17 +302,31 @@ function Cart() {
             </div>
           </div>
           <div className="row g-4">
+            {!couponsIsApplied&&
+            
             <div className="col-lg-4">
               <div className="coupon-area">
                 <div className="cart-coupon-input">
                   <h5 className="coupon-title">Coupon Code</h5>
                   <form className="coupon-input d-flex align-items-center">
-                    <input type="text" placeholder="Coupon Code" />
-                    <button type="submit">Apply Code</button>
+                    <input type="text" placeholder="Coupon Code" onChange={(e)=>setCouponCode(e.target.value)} />
+                    <input type="button" value="Apply Code" className="btn" onClick={searchForCoupon}/>
                   </form>
                 </div>
               </div>
             </div>
+            }
+            {couponsIsApplied&& 
+            <div className="col-lg-4">
+              <div className="coupon-area">
+                <div className="cart-coupon-input">
+                  <h5 className="coupon-title">Coupon Code : {couponcode} is Applied Value : {couponValue}</h5>
+                 
+                </div>
+              </div>
+            </div>
+
+            }
             <div className="col-lg-8">
 <table className="table total-table">
 <thead>

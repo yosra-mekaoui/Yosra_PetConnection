@@ -49,6 +49,7 @@ function Header() {
                   <NavLink to="/home" className="drop-down ">
                     Home
                   </NavLink>
+                  
                 </li>
                 <li>
                   <NavLink to="/About">About</NavLink>
@@ -66,8 +67,16 @@ function Header() {
                 <li>
                   <a href="contact.html">Contact</a>
                 </li>
+                
+                <li>
+                <NavLink to="/woah">WOAH</NavLink>
+                </li>
                 {/* <Link to="About">Contact</Link> */}
               </ul>
+
+
+
+
               
               <div className="for-mobile-menu d-lg-none d-block">
                 <div className="hotline mb-5">

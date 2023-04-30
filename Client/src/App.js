@@ -32,6 +32,9 @@ const Cart = React.lazy(()=> import ('./Components/MarketPlace/cart'))
 const Details = React.lazy(()=> import ('./Components/MarketPlace/details'))
 const Checkout = React.lazy(()=> import ('./Components/MarketPlace/checkout'))
 const Paymenet = React.lazy(()=> import ('./Components/MarketPlace/payment'))
+const Woah=React.lazy(()=>import("./Components/MarketPlace/woah"));
+const Scrap=React.lazy(()=>import("./Components/MarketPlace/scrape"));
+
 import { Elements } from "@stripe/react-stripe-js";
 
 
@@ -111,6 +114,9 @@ useScript("./assets/js/masonry.pkgd.min.js");
                 <Paymenet />
               </Elements>
             }></Route>
+          <Route exact path='/woah' element={<Woah />}></Route>
+          <Route exact path='/scrap' element={<Scrap />}></Route>
+
 
         </Routes>
 

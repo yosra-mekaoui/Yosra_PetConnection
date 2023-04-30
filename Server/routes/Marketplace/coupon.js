@@ -48,6 +48,19 @@ router.get("/getAllCoupon",async (req, res) => {
     }
 
   })
+router.get("/isCodeExiste/:code",async(req,res)=>{
+    const coupon=await Coupon.findOne({code:req.params.code});
+    if(coupon!=null){
+        return res.status(200).json({
+            "isExiste":true,
+            "coupon":coupon,
+        })
+    }else{
+        return res.status(200).json({
+            "isExiste":false,
+        })
+    }
+})
 
 
 

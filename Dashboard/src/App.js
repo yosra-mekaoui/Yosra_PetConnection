@@ -21,6 +21,7 @@ const Profile = React.lazy(() => import('./Components/Admin/profile'))
 
 const AddUser = React.lazy(() => import('./Components/Admin/AddUser'))
 const Update = React.lazy(() => import('./Components/Admin/updateUser'))
+const Listecoupon=React.lazy(()=>import('./Components/Admin/Listcoupon'));
 
 
 
@@ -54,7 +55,9 @@ function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/products/new" element={<NewProduct />} />
           <Route path="/products/update/:id" element={<UpdateProduct />} />
+          <Route path="/listCoupon" element={<Listecoupon/>} />
 
+          
 
         </Routes>
         <Footer />

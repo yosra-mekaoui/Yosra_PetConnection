@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { NavLink,Link, Routes, Route } from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import { createBrowserHistory } from 'history';
 import {affichage, selectProduct} from "../../redux/slices/ProductSlice";
 import { addToCart } from "../../redux/slices/cartSlice";
@@ -11,30 +11,53 @@ import axios from "axios";
 function Shop() {
   const dispatch = useDispatch();
   const products = useSelector(selectProduct);
+  const[productsState,setProductState]=useState([]);
   const history = createBrowserHistory();
   const userFromLocalStorageString = localStorage.getItem('user');
   const user = userFromLocalStorageString ? JSON.parse(userFromLocalStorageString) : null;
+  const [listeFiltre,setListeFiltre]=useState([])
  
- 
+  function applyFilter(value){
+    console.log(value)
+    let lf=listeFiltre;
+    if(!lf.includes(value)){
+      lf.push(value);
 
-  useEffect(() => {
-    dispatch(affichage())
+    }else{
+      lf.splice(lf.indexOf(value), 1);
+    }
+    let pr=products;
+    if(lf.length>0){
+    pr=pr.filter(p=>lf.includes(p.categories));
+    setListeFiltre(lf);
+   setProductState(pr);
+    }else{
+      setProductState(products)
+    }
+
+
+  }
+  useEffect( () => {
+     dispatch(affichage())
   }, [dispatch]);
+
+  useEffect( () =>
+   {    
+    setProductState(products);
+   }
+ ,[products] )
   const handleSubmit = async (id) => {
+
     if(user!=null){
     try {
-      toast.success(" product added to cart", {
-        position: "bottom-left",
-    });
+    
    
-      const response = await axios.post(`http://localhost:3000/addproducttocart/${id}`, {user});
+      const response =  axios.post(`http://localhost:3000/addproducttocart/${id}`, {user}).then((card)=>{
+        toast.success(" product added to cart", {
+          position: "bottom-left",
+        })
+      });
       console.log(response.data);
-      
-     
-    
-    
-
-    
     } catch (error) {
       console.error(error);
     }}else{
@@ -81,26 +104,20 @@ function Shop() {
                 <div className="check-box-item">
                   <h5 className="shop-widget-title">Category</h5>
                   <div className="checkbox-container">
-                    <label className="containerss">Food Toppers
-                      <input type="checkbox" defaultChecked="checked" />
+                    
+                    <label className="containerss">Aliments
+                      <input type="checkbox" onClick={(e)=>applyFilter("Aliments")}/>
                       <span className="checkmark" />
                     </label>
-                    <label className="containerss">Milk Replacers
-                      <input type="checkbox" />
+                    <label className="containerss">Accessoires
+                      <input type="checkbox" onClick={(e)=>applyFilter("Accessoires")} />
                       <span className="checkmark" />
                     </label>
-                    <label className="containerss">Canned Food
-                      <input type="checkbox" />
+                    <label className="containerss">Jouets
+                      <input type="checkbox" onClick={(e)=>applyFilter("Jouets")} />
                       <span className="checkmark" />
                     </label>
-                    <label className="containerss">Veterinary Authorized Diets
-                      <input type="checkbox" />
-                      <span className="checkmark" />
-                    </label>
-                    <label className="containerss">Bones &amp; Rawhide
-                      <input type="checkbox" />
-                      <span className="checkmark" />
-                    </label>
+                  
                   </div>
                 
           
@@ -142,7 +159,8 @@ function Shop() {
             </div>
             <div className="row g-4 justify-content-center">
 
-              {products.map((p,i) => {
+              {productsState&&
+              productsState.map((p,i) => {
                 return (
                   <div className="col-lg-4 col-md-4 col-sm-6">
                     <div className="collection-card">
